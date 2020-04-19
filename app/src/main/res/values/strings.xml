@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">Weather</string>
+    <string name="logo" translatable="false">Logo</string>
+    <string name="gps" translatable="false">GPS Icon</string>
+    <string name="zero" translatable="false">0</string>
+    <string name="selectcity">Select a city or weather station of another user</string>
+    <string name="station">Add your own weather station</string>
+    <string name="addcity">Add location</string>
+    <string name="addstation">Add weather station</string>
+    <string name="login">Welcome in SimplyClime!</string>
+    <string name="username">Username or e-mail</string>
+    <string name="password">Password</string>
+    <string name="or">or</string>
+    <string name="register">Register</string>
+    <string name="emptylogin">Enter username and password</string>
+    <string name="error">Unexpected error, please try again</string>
+    <string name="regusername">Username</string>
+    <string name="email">E-mail</string>
+    <string name="createacc">Create account</string>
+    <string name="search">Search for the city</string>
+    <string name="searchempty">Enter the name of the city</string>
+    <string name="stationname">Station name</string>
+    <string name="country">Country</string>
+    <string name="city">City</string>
+    <string name="street">Street</string>
+    <string name="registertext">Register in SimplyClime!</string>
+    <string name="numberstation">"Weather stations: "</string>
+    <string name="emptysearch">No weather stations in this city</string>
+    <string name="wrongcity">City not found</string>
+    <string name="flag">Flag</string>
+    <string name="downarrow">Down arrow</string>
+    <string name="alreadyadd">This location is already added</string>
+    <string name="buldingnumber">Building number</string>
+    <string name="kmh" translatable="false">km/h</string>
+    <string name="mph" translatable="false">mph</string>
+    <string name="ms" translatable="false">m/s</string>
+    <string name="Celsjusz" translatable="false">°C</string>
+    <string name="Kelvin" translatable="false">K</string>
+    <string name="Fahrenheit" translatable="false">°F</string>
+    <string name="windunit">Wind speed measurement unit</string>
+    <string name="tempunit">Temperature measurement unit</string>
+    <string name="createstation">Create a new weather station</string>
+    <string name="requiered">This field is required</string>
+    <string name="min4sign">The username should contain at least 4 characters</string>
+    <string name="minsignpassword">The password should contain at least 5 characters</string>
+    <string name="correctemail">Enter the correct e-mail address</string>
+    <string name="passequalsuser">The username should be different than the password</string>
+    <string name="usernameexist">The username is already taken</string>
+    <string name="mailexist">The email address provided is already in use</string>
+    <string name="configure">Choose a city or weather station</string>
+    <string name="add_widget">Add widget</string>
+    <string name="emptyplaces">No locations added, you can add them in the application</string>
+    <string name="chooseplace">Choose a location</string>
+    <string name="tempout" translatable="false">Temp</string>
+    <string name="humidityout">Humidity</string>
+    <string name="pressure">Pressure</string>
+    <string name="rainfall">Rainfall</string>
+    <string name="windspeed">Wind speed</string>
+    <string name="insolation">Insolation</string>
+    <string name="baterry">Baterry</string>
+    <string name="time">Time</string>
+    <string name="weathericon">Weather icon</string>
+    <string name="tempicon">Temperature icon</string>
+    <string name="humicon">Humidity icon</string>
+    <string name="updated">Updated at</string>
+    <string name="in">In</string>
+    <string name="out">Out</string>
+    <string name="airpollution">Air pollution</string>
+    <string name="pollutionuit" translatable="false">µg/m3</string>
+    <string name="lastupdate">Last data from</string>
+    <string name="transparenty">Background transparency</string>
+    <string name="theme">Theme</string>
+    <string name="dark">Dark</string>
+    <string name="visibility">Visibility of elements</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="sunset">Sunset</string>
+    <string name="nodata">No data in this location</string>
+    <string name="settings">Settings</string>
+    <string name="apply">Apply</string>
+    <string name="edit">Edit</string>
+    <string name="wunit">Wind speed unit</string>
+    <string name="tunit">Temperature unit</string>
+    <string name="apiKey" translatable="false">API Key</string>
+    <string name="textcopied">The api key has been copied</string>
+    <string name="checkconnection">Check your internet connection and try again</string>
+    <string name="delete">Delete station</string>
+    <string name="dayafterday">Weather day by day</string>
+    <string name="date">Data</string>
+    <string name="monday">Mon</string>
+    <string name="tuesday">Tue</string>
+    <string name="wednesday">Wed</string>
+    <string name="thursday">Thu</string>
+    <string name="friday">Fri</string>
+    <string name="saturday">Sat</string>
+    <string name="sunday">Sun</string>
+    <string name="fmonday">Monday</string>
+    <string name="ftuesday">Tuesday</string>
+    <string name="fwednesday">Wednesday</string>
+    <string name="fthursday">Thursday</string>
+    <string name="ffriday">Friday</string>
+    <string name="fsaturday">Saturday</string>
+    <string name="fsunday">Sunday</string>
+    <string name="nextday">Next day</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="infoGPS">" The weather will automatically adapt to the place where you are"</string>
+    <string name="searchiglocation">Searching for your location &#8230;</string>
+    <string name="ok">Okay</string>
+    <string name="choosemanually">Choose city manually</string>
+    <string name="waitfor">I am looking for a location, please wait</string>
+    <string name="sourcedata">Pick up a source of weather data</string>
+    <string name="fromusers">From weather stations belonging to users</string>
+    <string name="fromcloud">From professional weather stations</string>
+    <string name="howitworks">How it works?</string>
+    <string name="exactlocation">Click on flag to see the exact location</string>
+    <string name="ecowitt">Ecowitt station</string>
+    <string name="title">Title</string>
+    <string name="temp" translatable="false">Temp.</string>
+    <string name="humidity">Hum.</string>
+    <string name="chartTitle">Outside temperature and rainfall</string>
+    <string name="room">Room</string>
+    <string name="settingsroom">Rename additional temperature and humidity measurements</string>
+    <string name="sendas">Send data in units</string>
+    <string name="showas">Display data in units</string>
+    <string name="deleteTitle">Delete station</string>
+    <string name="deleteContent">Are you sure you want to delete station - </string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string translatable="false" name="min">Min</string>
+    <string name="avg">Average</string>
+    <string name="max">Max</string>
+    <string name="forecast">Weather forecast from</string>
+    <string name="forecastbutton">Change city</string>
+</resources>

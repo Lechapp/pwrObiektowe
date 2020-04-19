@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0099ff</color>
+    <color name="underline">#00cc60</color>
+    <color name="colorPrimaryaplha">#660099ff</color>
+    <color name="none">#00000000</color>
+    <color name="grey">#aaaaaa</color>
+    <color name="greybutton">#c5c5c5</color>
+    <color name="blackalpha">#4f000000</color>
+    <color name="blackalphadark">#99000000</color>
+    <color name="blackfont">#222222</color>
+    <color name="whitealpha">#eeFFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="whitesmoke">#e0e0e0</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#0099ff</color>
+    <color name="colorAccentAlpha">#bb0099ff</color>
+    <color name="error">#d32e34</color>
+
+    <color name="verygood">#6dbb28</color>
+    <color name="good">#93be00</color>
+    <color name="moderate">#dfb904</color>
+    <color name="sufficient">#e48100</color>
+    <color name="bad">#aa0000</color>
+    <color name="verybad">#e40000</color>
+
+    <color name="sunrise">#ffeb3b</color>
+    <color name="moon">#e3e3e3</color>
+    <color name="rainfall">#333366</color>
+</resources>

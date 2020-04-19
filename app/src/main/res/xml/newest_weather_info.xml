@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:minWidth="300dp"
+                    android:minHeight="140dp"
+                    android:updatePeriodMillis="3600000"
+                    android:previewImage="@drawable/widget_example"
+                    android:initialLayout="@layout/newest_weather"
+                    android:configure="pl.simplyinc.pogoda.widget.NewestWeatherConfigureActivity"
+                    android:widgetCategory="home_screen"
+                    android:resizeMode="vertical|horizontal"
+                    android:initialKeyguardLayout="@layout/newest_weather">
+</appwidget-provider>

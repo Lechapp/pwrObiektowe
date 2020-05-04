@@ -227,4 +227,163 @@ class WeatherTools {
 
         return background
     }
+
+
+    fun weatherIconOpenWeather(mainn:String,descriptionn: String, sunrisee:Int, sunsett:Int, timezone:Int, black:Boolean, rainn:String, timeDate:Int = 0):Int{
+
+        val icon:Int
+        val systemtime = System.currentTimeMillis()/1000L
+        val systemtimezone = (TimeZone.getDefault().rawOffset + TimeZone.getDefault().dstSavings)/1000L
+        val weathertimetoday = if(timeDate == 0){
+            systemtime - systemtimezone + timezone
+        }else{
+            timeDate.toLong()
+        }
+
+        val subDay = SimpleDateFormat("D", Locale.getDefault())
+        subDay.timeZone = TimeZone.getTimeZone("GMT")
+        val sunset = sunsett + timezone
+        val sunrise = sunrisee + timezone
+        val today = subDay.format(Date(weathertimetoday * 1000L)).toInt()
+        val sunriseDay = subDay.format(Date(sunrise*1000L)).toInt()
+        val substractDay = today - sunriseDay
+        val main:String = mainn
+        val description:String = descriptionn
+
+        var rain = 0
+
+        if(rainn != "null") {
+            try{
+                rain = rainn.toInt()
+            }catch (e:Exception){ }
+        }
+
+        if((weathertimetoday - (substractDay * 3600*24) in sunrise-3000..sunset+3000)){
+            when(main){
+                "Clear" -> {
+                    icon = when (black) {
+                        true -> R.drawable.sun_w
+                        false -> R.drawable.sun_b
+                    }
+                }
+                "Clouds" -> {
+                    icon = when(description) {
+                        "few clouds" -> {
+                            when (black) {
+                                true -> R.drawable.little_cloud_sun_w
+                                false -> R.drawable.little_cloud_sun_b
+                            }
+                        }
+                        "scattered clouds", "broken clouds" -> {
+                            when (black) {
+                                true -> R.drawable.cloud_sun_w
+                                false -> R.drawable.cloud_sun_b
+                            }
+                        }
+                        else -> {
+                            when (black) {
+                                true -> R.drawable.cloud_w
+                                false -> R.drawable.cloud_b
+                            }
+                        }
+                    }
+                }
+                "Rain", "Drizzle", "Thunderstorm" -> {
+                    icon = if(description.contains("light")) {
+                        if(rain < 9){
+                            when (black) {
+                                true -> R.drawable.cloud_sun_w
+                                false -> R.drawable.cloud_sun_b
+                            }
+                        }else {
+                            when (black) {
+                                true -> R.drawable.cloud_sun_little_rain_w
+                                false -> R.drawable.cloud_sun_little_rain_b
+                            }
+                        }
+                    }else {
+                        when (black) {
+                            true -> R.drawable.cloud_sun_rain_w
+                            false -> R.drawable.cloud_sun_rain_b
+                        }
+                    }
+                }
+                "Snow" -> {
+                    icon = if(rain < 9){
+                        when (black) {
+                            true -> R.drawable.cloud_w
+                            false -> R.drawable.cloud_b
+                        }
+                    }else{
+                        when (black) {
+                            true -> R.drawable.cloud_snow_w
+                            false -> R.drawable.cloud_snow_b
+                        }
+                    }
+                }
+                else -> {
+                    icon = when (black) {
+                        true -> R.drawable.cloud_w
+                        false -> R.drawable.cloud_b
+                    }
+                }
+            }
+        }else{
+            when(main){
+                "Clear" -> {
+                    icon = when (black) {
+                        true -> R.drawable.moon_w
+                        false -> R.drawable.moon_b
+                    }
+                }
+                "Clouds" -> {
+                    icon = when (black) {
+                        true -> R.drawable.cloud_moon_w
+                        false -> R.drawable.cloud_moon_b
+                    }
+                }
+                "Rain", "Drizzle", "Thunderstorm" -> {
+                    icon = if(description.contains("light")) {
+                        if(rain < 9){
+                            when (black) {
+                                true -> R.drawable.cloud_moon_w
+                                false -> R.drawable.cloud_moon_b
+                            }
+                        }else {
+                            when (black) {
+                                true -> R.drawable.cloud_moon_little_rain_w
+                                false -> R.drawable.cloud_moon_little_rain_b
+                            }
+                        }
+                    }else{
+                        when (black) {
+                            true -> R.drawable.cloud_moon_rain_w
+                            false -> R.drawable.cloud_moon_rain_b
+                        }
+                    }
+                }
+                "Snow" -> {
+                    icon = if(rain < 9){
+                        when (black) {
+                            true -> R.drawable.cloud_moon_w
+                            false -> R.drawable.cloud_moon_b
+                        }
+                    }else{
+                        when (black) {
+                            true -> R.drawable.cloud_moon_snow_w
+                            false -> R.drawable.cloud_moon_snow_b
+                        }
+                    }
+                }
+                else -> {
+                    icon = when (black) {
+                        true -> R.drawable.cloud_moon_w
+                        false -> R.drawable.cloud_moon_b
+                    }
+                }
+            }
+        }
+
+        return icon
+    }
 }

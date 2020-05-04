@@ -116,6 +116,10 @@ class GpsLocation(private val c:Context, private val searchActivity: SearchWeath
                 searchActivity.setLocation(loc)
             }
 
+            if(weatherInfo !== null){
+                weatherInfo.setWeather(loc)
+            }
+
         }
     }
 

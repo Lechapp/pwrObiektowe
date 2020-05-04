@@ -17,6 +17,7 @@ import pl.simplyinc.pogoda.config.DataBaseHelper
 import pl.simplyinc.pogoda.config.OpenWeather
 import pl.simplyinc.pogoda.config.StationTableInfo
 import pl.simplyinc.pogoda.elements.CircularProgressBar
+import pl.simplyinc.pogoda.elements.DbQueries
 import pl.simplyinc.pogoda.elements.SessionPref
 import java.lang.Exception
 import java.text.SimpleDateFormat
@@ -24,7 +25,7 @@ import java.util.*
 
 class SunsetRequest {
 
-    fun getNewestSunset(context: Context, searchval:String, station:Cursor, day:CircularProgressBar, night:CircularProgressBar, sset:TextView, srise:TextView) {
+    fun getNewestSunset(context: Context, searchval:String, stationID: String, onSuccess: (finishRequest: Boolean) -> Unit) {
 
         val url = "https://api.openweathermap.org/data/2.5/weather?$searchval&appid=${OpenWeather.APIKey}"
 
@@ -41,8 +42,8 @@ class SunsetRequest {
                         val sunset = data.getInt("sunset")
 
                         //setDayProgress
-                        saveSunset(context,sunset,sunrise, station)
-
+                        saveSunset(context,sunset,sunrise, stationID)
+                        onSuccess(true)
                     }catch (e:Exception){}
                 }
 
@@ -54,15 +55,11 @@ class SunsetRequest {
         VolleySingleton.getInstance(context).addToRequestQueue(request)
     }
 
-    private fun saveSunset(c:Context,sunset:Int, sunrise:Int, station: Cursor){
+    private fun saveSunset(c:Context,sunset:Int, sunrise:Int, stationID : String){
         val newStation = ContentValues()
         newStation.put(StationTableInfo.ColumnSunset,sunset)
         newStation.put(StationTableInfo.ColumnSunrise, sunrise)
 
-        val dbHelper = DataBaseHelper(c)
-        val db = dbHelper.writableDatabase
-        db.update(
-            StationTableInfo.TableName, newStation, BaseColumns._ID + "=?", arrayOf(station.getString(station.getColumnIndex(
-                BaseColumns._ID))))
+        DbQueries(c).updateStationData(newStation, stationID)
     }
 }

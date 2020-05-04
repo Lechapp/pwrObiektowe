@@ -17,6 +17,7 @@ import pl.simplyinc.pogoda.config.DataBaseHelper
 import pl.simplyinc.pogoda.config.ForecastsTableInfo
 import pl.simplyinc.pogoda.config.StationTableInfo
 import pl.simplyinc.pogoda.config.WeatherTableInfo
+import pl.simplyinc.pogoda.elements.DbQueries
 
 
 @Suppress("IMPLICIT_CAST_TO_ANY")
@@ -54,26 +55,15 @@ class SearchWeatherAdapter(private val cities: MutableList<String>, private val 
 
 
             city.setOnClickListener {
-                val dbHelper = DataBaseHelper(context)
-                val db = dbHelper.writableDatabase
                 val stationData = ContentValues()
-                val weatherData = ContentValues()
 
                 stationData.put(StationTableInfo.ColumnCity, cities[position])
                 stationData.put(StationTableInfo.ColumnTitle, cities[position])
                 stationData.put(StationTableInfo.ColumnTimezone, timezone[position])
                 stationData.put(StationTableInfo.ColumnGPS, false)
 
-                val stationID = db.insertOrThrow(StationTableInfo.TableName, null, stationData).toInt()
+                val stationID = DbQueries(context).addNewStation(stationData)
 
-                weatherData.put(ForecastsTableInfo.ColumnStationID, stationID)
-
-                db.insertOrThrow(WeatherTableInfo.TableName, null, weatherData)
-
-                for(i in 0..4) {
-                    weatherData.put(ForecastsTableInfo.ColumnDayNumber, i)
-                    db.insertOrThrow(ForecastsTableInfo.TableName, null, weatherData)
-                }
 
                 val intent = Intent(context, MainActivity::class.java)
                 intent.putExtra("setweather", stationID)

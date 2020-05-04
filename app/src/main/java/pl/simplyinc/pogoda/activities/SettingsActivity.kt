@@ -2,27 +2,25 @@ package pl.simplyinc.pogoda.activities
 
 import android.content.ContentValues
 import android.content.Intent
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.BaseColumns
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.RadioButton
 import kotlinx.android.synthetic.main.activity_settings.*
 import pl.simplyinc.pogoda.R
 import androidx.appcompat.app.AlertDialog
-import pl.simplyinc.pogoda.config.DataBaseHelper
+import org.json.JSONObject
 import pl.simplyinc.pogoda.config.StationTableInfo
+import pl.simplyinc.pogoda.elements.DbQueries
 
 
 class SettingsActivity : AppCompatActivity() {
 
     private var position:Int = -1
-    private lateinit var cursor:Cursor
-    private lateinit var db:SQLiteDatabase
+    private lateinit var dbQueries: DbQueries
+    private lateinit var stationData:JSONObject
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,12 +29,10 @@ class SettingsActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.settings)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         position = intent.getIntExtra("position",-1)
-        val dbHelper = DataBaseHelper(applicationContext)
-        db = dbHelper.writableDatabase
-        cursor = db.query(StationTableInfo.TableName, null, null, null, null,null, null)
-        cursor.moveToPosition(position)
+        dbQueries = DbQueries(this)
+        stationData = dbQueries.getStationData(position)
 
-        settingscity.text = cursor.getString(cursor.getColumnIndex(StationTableInfo.ColumnCity))
+        settingscity.text = stationData.getString(StationTableInfo.ColumnCity)
 
         setTempunit()
 
@@ -47,7 +43,7 @@ class SettingsActivity : AppCompatActivity() {
         delete.setOnClickListener {
             val builder = AlertDialog.Builder(this)
             builder.setTitle(getString(R.string.deleteTitle))
-            val content = "${getString(R.string.deleteContent)} ${cursor.getString(cursor.getColumnIndex(StationTableInfo.ColumnTitle))}?"
+            val content = "${getString(R.string.deleteContent)} ${stationData.getString(StationTableInfo.ColumnTitle)}?"
             builder.setMessage(content)
             builder.setPositiveButton(getString(R.string.yes)){_, _ ->
                 deleteWeather()
@@ -94,7 +90,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun exit(){
-        db.close()
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.putExtra("setweather", position)
         intent.putExtra("slideanim", true)
@@ -111,8 +106,8 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setTitle(){
-        snamee.text = cursor.getString(cursor.getColumnIndex(StationTableInfo.ColumnTitle))
-        edittextsname.setText(cursor.getString(cursor.getColumnIndex(StationTableInfo.ColumnTitle)))
+        snamee.text = stationData.getString(StationTableInfo.ColumnTitle)
+        edittextsname.setText(stationData.getString(StationTableInfo.ColumnTitle))
         editsname.setOnClickListener {
             snamee.visibility = View.GONE
             edittextsname.visibility = View.VISIBLE
@@ -122,9 +117,9 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setTempunit(){
-        temptextunit.text = cursor.getString(cursor.getColumnIndex(StationTableInfo.ColumnTempUnit))
+        temptextunit.text = stationData.getString(StationTableInfo.ColumnTempUnit)
 
-        when(cursor.getString(cursor.getColumnIndex(StationTableInfo.ColumnTempUnit))){
+        when(stationData.getString(StationTableInfo.ColumnTempUnit)){
             "°C" -> sC.isChecked = true
             "°F" -> sF.isChecked = true
             else -> sK.isChecked = true
@@ -140,8 +135,8 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setWindunit(){
-        windtextunit.text = cursor.getString(cursor.getColumnIndex(StationTableInfo.ColumnWindUnit))
-        when(cursor.getString(cursor.getColumnIndex(StationTableInfo.ColumnWindUnit))) {
+        windtextunit.text = stationData.getString(StationTableInfo.ColumnWindUnit)
+        when(stationData.getString(StationTableInfo.ColumnWindUnit)) {
             "km/h" -> skmh.isChecked = true
             "mph" -> smph.isChecked = true
             else -> sms.isChecked = true
@@ -164,13 +159,12 @@ class SettingsActivity : AppCompatActivity() {
         newStation.put(StationTableInfo.ColumnWindUnit, windunit)
         newStation.put(StationTableInfo.ColumnTitle, title)
 
-        db.update(StationTableInfo.TableName, newStation, BaseColumns._ID + "=?", arrayOf(cursor.getString(cursor.getColumnIndex(BaseColumns._ID))))
+       dbQueries.updateStationData(newStation, stationData.getString(BaseColumns._ID))
     }
 
 
     private fun deleteWeather(){
-        db.delete(StationTableInfo.TableName, BaseColumns._ID+"=?", arrayOf(cursor.getString(cursor.getColumnIndex(BaseColumns._ID))))
-        db.close()
+        dbQueries.deleteStation(stationData.getString(BaseColumns._ID))
         val intentt = Intent(applicationContext, MainActivity::class.java)
         intentt.putExtra("slideanim", true)
         startActivity(intentt)

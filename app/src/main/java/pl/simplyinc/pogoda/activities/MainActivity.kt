@@ -11,32 +11,31 @@ import androidx.viewpager.widget.ViewPager
 import pl.simplyinc.pogoda.adapters.PagerAdapter
 import pl.simplyinc.pogoda.config.DataBaseHelper
 import pl.simplyinc.pogoda.config.StationTableInfo
-
+import pl.simplyinc.pogoda.elements.DbQueries
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var pagerAdapter: PagerAdapter
     lateinit var adaptername:StationNameAdapter
+    lateinit var dbQueries: DbQueries
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val dbHelper = DataBaseHelper(applicationContext)
-        val db = dbHelper.readableDatabase
-        val cursor = db.query(StationTableInfo.TableName, null, null, null, null,null, null)
-        val stationsCount = cursor.count
-        cursor.close()
+        dbQueries = DbQueries(this)
+
+
         if(intent.getBooleanExtra("slideanim", false))
             overridePendingTransition(R.anim.slidein_from_left_to_right, R.anim.activity_slide_out_right)
 
 
         supportActionBar?.hide()
-        pagerAdapter = PagerAdapter(supportFragmentManager, this, stationsCount)
+        pagerAdapter = PagerAdapter(supportFragmentManager, this, dbQueries.getStationCount())
         weathers.adapter = pagerAdapter
 
-        setTitleBar(db)
+        setTitleBar()
 
         checkactiveposition()
 
@@ -54,17 +53,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun setTitleBar(db:SQLiteDatabase){
-        val title = arrayListOf<String>()
+    private fun setTitleBar(){
+        val title = dbQueries.getWeatherTitles()
 
-        val cursor = db.query(StationTableInfo.TableName, arrayOf(StationTableInfo.ColumnTitle), null, null, null,null, null)
-        cursor.moveToFirst()
-        title.add(cursor.getString(0))
-
-        while(cursor.moveToNext()){
-            title.add(cursor.getString(0))
-        }
-        cursor.close()
         title.add(getString(R.string.addcity))
 
         adaptername = StationNameAdapter(title,this, weathers)
@@ -77,8 +68,6 @@ class MainActivity : AppCompatActivity() {
             )
 
     }
-
-
 
     private fun checkactiveposition(){
         val weatherposition = intent.getIntExtra("setweather", -1)

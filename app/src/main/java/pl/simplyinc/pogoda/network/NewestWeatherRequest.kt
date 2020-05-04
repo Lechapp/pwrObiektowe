@@ -26,20 +26,17 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
-class NewestWeatherRequest(val c:Context, private val v:View?, private val appWidgetManager: AppWidgetManager? = null, private val appWidgetId: Int = -1) {
+class NewestWeatherRequest(private val c:Context, private val appWidgetManager: AppWidgetManager? = null, private val appWidgetId: Int = -1) {
 
     private val tool = WeatherTools()
-    private val dbHelper = DataBaseHelper(c)
-    private val db = dbHelper.writableDatabase
+    private val dbQueries = DbQueries(c)
 
-    fun getNewestWeatherOpenWeather(stat: Cursor, lat:String = "", lon:String = "", onSuccess: (weathercursor: Cursor) -> Unit) {
-        var weatherCursor = db.query(WeatherTableInfo.TableName, null, WeatherTableInfo.ColumnStationID + "=?", arrayOf(stat.getInt(stat.getColumnIndex(BaseColumns._ID)).toString()), null,null, null)
-        weatherCursor.moveToFirst()
+    fun getNewestWeatherOpenWeather(idStation:String, lat:String = "", lon:String = "", onSuccess: (finishRequest: Boolean) -> Unit) {
 
         val searchvalue = if(lat != "") {
             "lat=$lat&lon=$lon"
         }else {
-            "q=${stat.getString(stat.getColumnIndex(StationTableInfo.ColumnCity))}"
+            "q=${dbQueries.getStationValue(idStation, StationTableInfo.ColumnCity)}"
         }
         val url = "https://api.openweathermap.org/data/2.5/weather?$searchvalue&appid=${OpenWeather.APIKey}"
 
@@ -87,9 +84,8 @@ class NewestWeatherRequest(val c:Context, private val v:View?, private val appWi
                 newWeather.put(WeatherTableInfo.ColumnRain, rain)
                 newWeather.put(WeatherTableInfo.ColumnWindSpeed, wind.getString("speed"))
                 newWeather.put(WeatherTableInfo.ColumnWindDir, windToSave)
-                db.update(
-                    WeatherTableInfo.TableName, newWeather, WeatherTableInfo.ColumnStationID + "=?", arrayOf(stat.getString(stat.getColumnIndex(
-                        BaseColumns._ID))))
+
+                dbQueries.updateWeatherData(newWeather, idStation)
 
                 val sys = response.getJSONObject("sys")
 
@@ -97,12 +93,10 @@ class NewestWeatherRequest(val c:Context, private val v:View?, private val appWi
                         response.getString("name"),
                         sys.getInt("sunset"),
                         sys.getInt("sunrise"),
-                        stat,
+                        idStation,
                         response.getInt("timezone"),
                         lat, lon
                     )
-                weatherCursor = db.query(WeatherTableInfo.TableName, null, WeatherTableInfo.ColumnStationID + "=?", arrayOf(stat.getInt(stat.getColumnIndex(BaseColumns._ID)).toString()), null,null, null)
-                weatherCursor.moveToFirst()
 
                 if(appWidgetId == -1)
                    // setWeather
@@ -116,12 +110,11 @@ class NewestWeatherRequest(val c:Context, private val v:View?, private val appWi
                     //setWidget
                 }
             }
-            onSuccess(weatherCursor)
+            onSuccess(true)
         },
             Response.ErrorListener {
                 if(appWidgetId == -1){
-                    //setWeather(weatherCursor, stat, true)
-                    onSuccess(weatherCursor)
+                    //setWeather
                 }else{
                     //setWidget
                 }
@@ -133,10 +126,10 @@ class NewestWeatherRequest(val c:Context, private val v:View?, private val appWi
 
 
 
-    private fun saveNewStation(city:String, sunset:Int, sunrise:Int, stat:Cursor, timezone:Int, lati:String, longi:String){
+    private fun saveNewStation(city:String, sunset:Int, sunrise:Int, idStation: String, timezone:Int, lati:String, longi:String){
 
-        if(stat.getInt(stat.getColumnIndex(StationTableInfo.ColumnGPS)) == 1
-            && stat.getString(stat.getColumnIndex(StationTableInfo.ColumnCity)) != city) {
+        if(dbQueries.getStationValue(idStation, StationTableInfo.ColumnGPS).toInt() == 1
+            && dbQueries.getStationValue(idStation, StationTableInfo.ColumnCity) != city) {
 
             val newStation = ContentValues()
             newStation.put(StationTableInfo.ColumnCity, city)
@@ -145,9 +138,8 @@ class NewestWeatherRequest(val c:Context, private val v:View?, private val appWi
             newStation.put(StationTableInfo.ColumnTimezone, timezone)
             newStation.put(StationTableInfo.ColumnLatitude, lati)
             newStation.put(StationTableInfo.ColumnLongitude, longi)
-            db.update(
-                StationTableInfo.TableName, newStation, BaseColumns._ID + "=?", arrayOf(stat.getString(stat.getColumnIndex(
-                    BaseColumns._ID))))
+
+            dbQueries.updateStationData(newStation, idStation)
         }
     }
 

@@ -21,22 +21,6 @@
         <activity android:name="pl.simplyinc.pogoda.activities.SettingsActivity">
         </activity>
 
-        <receiver android:name="pl.simplyinc.pogoda.widget.NewestWeather">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
-            </intent-filter>
-
-            <meta-data
-                    android:name="android.appwidget.provider"
-                    android:resource="@xml/newest_weather_info"/>
-        </receiver>
-
-        <activity android:name="pl.simplyinc.pogoda.widget.NewestWeatherConfigureActivity"
-                android:screenOrientation="fullSensor">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
-            </intent-filter>
-        </activity>
 
         <activity android:name="pl.simplyinc.pogoda.activities.SearchWeatherActivity">
             <intent-filter android:label="@string/search">

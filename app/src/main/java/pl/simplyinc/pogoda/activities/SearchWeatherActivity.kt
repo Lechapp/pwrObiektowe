@@ -181,27 +181,16 @@ class SearchWeatherActivity : AppCompatActivity() {
 
     private fun createPlace(){
 
-        val dbHelper = DataBaseHelper(applicationContext)
-        val db = dbHelper.writableDatabase
         val stationData = ContentValues()
-        val weatherData = ContentValues()
 
         stationData.put(StationTableInfo.ColumnCity, searchedCity)
         stationData.put(StationTableInfo.ColumnTitle, searchedCity)
         stationData.put(StationTableInfo.ColumnTimezone, searchedtimezone)
         stationData.put(StationTableInfo.ColumnLatitude, loc?.latitude)
-        stationData.put(StationTableInfo.ColumnLatitude, loc?.longitude)
+        stationData.put(StationTableInfo.ColumnLongitude, loc?.longitude)
         stationData.put(StationTableInfo.ColumnGPS, true)
 
-        val stationID = db.insertOrThrow(StationTableInfo.TableName, null, stationData).toInt()
-        weatherData.put(ForecastsTableInfo.ColumnStationID, stationID)
-
-        db.insertOrThrow(WeatherTableInfo.TableName, null, weatherData)
-
-        for(i in 0..4) {
-            weatherData.put(ForecastsTableInfo.ColumnDayNumber, i)
-            db.insertOrThrow(ForecastsTableInfo.TableName, null, weatherData)
-        }
+        val stationID = DbQueries(applicationContext).addNewStation(stationData)
 
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("setweather", stationID)

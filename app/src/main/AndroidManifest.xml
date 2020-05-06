@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        package="pl.simplyinc.pogoda">
+        package="pl.pwr.pogoda">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -18,11 +18,11 @@
             android:theme="@style/AppTheme"
             android:fullBackupContent="true"
             tools:targetApi="n">
-        <activity android:name="pl.simplyinc.pogoda.activities.SettingsActivity">
+        <activity android:name="pl.pwr.pogoda.activities.SettingsActivity">
         </activity>
 
 
-        <activity android:name="pl.simplyinc.pogoda.activities.SearchWeatherActivity">
+        <activity android:name="pl.pwr.pogoda.activities.SearchWeatherActivity">
             <intent-filter android:label="@string/search">
                 <action android:name="android.intent.action.VIEW"/>
 
@@ -37,7 +37,7 @@
                         android:scheme="https"/>
             </intent-filter>
         </activity>
-        <activity android:name="pl.simplyinc.pogoda.activities.MainActivity">
+        <activity android:name="pl.pwr.pogoda.activities.MainActivity">
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.MAIN"/>
 

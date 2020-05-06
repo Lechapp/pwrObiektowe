@@ -119,7 +119,7 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent">
 
-                        <pl.simplyinc.pogoda.elements.CircularProgressBar
+                        <pl.pwr.pogoda.elements.CircularProgressBar
                                 android:id="@+id/night_ProgressBar"
                                 android:layout_width="240dp"
                                 android:layout_height="240dp"
@@ -130,7 +130,7 @@
                                 app:progress="0"
                                 app:progressBarThickness="4dp" />
 
-                        <pl.simplyinc.pogoda.elements.CircularProgressBar
+                        <pl.pwr.pogoda.elements.CircularProgressBar
                                 android:id="@+id/day_ProgressBar"
                                 android:layout_width="240dp"
                                 android:layout_height="240dp"

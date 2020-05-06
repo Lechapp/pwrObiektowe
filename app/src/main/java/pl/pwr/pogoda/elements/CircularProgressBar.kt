@@ -1,4 +1,4 @@
-package pl.pwr.pogoda.elements
+package pl.simplyinc.pogoda.elements
 
 import android.content.Context
 import android.util.AttributeSet
@@ -12,7 +12,7 @@ import android.graphics.RectF
 import android.graphics.Color.GRAY
 import android.graphics.Paint
 import androidx.core.content.ContextCompat
-import pl.pwr.pogoda.R
+import pl.simplyinc.pogoda.R
 import kotlin.math.min
 
 
@@ -39,6 +39,7 @@ class CircularProgressBar(context: Context, attrs: AttributeSet) : View(context,
             }
         }
         invalidate()
+
     }
 
     fun setProgress(progress: Float) {

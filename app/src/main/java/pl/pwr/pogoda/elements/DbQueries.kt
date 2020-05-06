@@ -1,13 +1,13 @@
-package pl.pwr.pogoda.elements
+package pl.simplyinc.pogoda.elements
 
 import android.content.ContentValues
 import android.content.Context
 import android.provider.BaseColumns
 import org.json.JSONObject
-import pl.pwr.pogoda.config.DataBaseHelper
-import pl.pwr.pogoda.config.ForecastsTableInfo
-import pl.pwr.pogoda.config.StationTableInfo
-import pl.pwr.pogoda.config.WeatherTableInfo
+import pl.simplyinc.pogoda.config.DataBaseHelper
+import pl.simplyinc.pogoda.config.ForecastsTableInfo
+import pl.simplyinc.pogoda.config.StationTableInfo
+import pl.simplyinc.pogoda.config.WeatherTableInfo
 
 class DbQueries(context: Context) {
     private val dbHelper = DataBaseHelper(context)

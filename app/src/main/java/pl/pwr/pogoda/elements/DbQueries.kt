@@ -1,13 +1,15 @@
-package pl.simplyinc.pogoda.elements
+package pl.pwr.pogoda.elements
 
 import android.content.ContentValues
 import android.content.Context
 import android.provider.BaseColumns
+import android.util.Log
+import org.json.JSONArray
 import org.json.JSONObject
-import pl.simplyinc.pogoda.config.DataBaseHelper
-import pl.simplyinc.pogoda.config.ForecastsTableInfo
-import pl.simplyinc.pogoda.config.StationTableInfo
-import pl.simplyinc.pogoda.config.WeatherTableInfo
+import pl.pwr.pogoda.config.DataBaseHelper
+import pl.pwr.pogoda.config.ForecastsTableInfo
+import pl.pwr.pogoda.config.StationTableInfo
+import pl.pwr.pogoda.config.WeatherTableInfo
 
 class DbQueries(context: Context) {
     private val dbHelper = DataBaseHelper(context)
@@ -109,11 +111,37 @@ class DbQueries(context: Context) {
 
         db.insertOrThrow(WeatherTableInfo.TableName, null, weatherData)
 
-        for(i in 0..4) {
+        for(i in 0..5) {
             weatherData.put(ForecastsTableInfo.ColumnDayNumber, i)
             db.insertOrThrow(ForecastsTableInfo.TableName, null, weatherData)
         }
 
         return stationID
+    }
+
+
+    fun getAllForecast(stationID:String):MutableList<JSONArray>{
+        val allForecast = mutableListOf<JSONArray>()
+
+        val weatherCursor = db.query(ForecastsTableInfo.TableName, null, ForecastsTableInfo.ColumnStationID + "=?", arrayOf(stationID), null,null, ForecastsTableInfo.ColumnDayNumber)
+        weatherCursor.moveToFirst()
+
+        while(weatherCursor.moveToNext()){
+            val weatherData = JSONArray()
+
+            weatherData.put(weatherCursor.getInt(weatherCursor.getColumnIndex(ForecastsTableInfo.ColumnTime)))
+            weatherData.put(weatherCursor.getInt(weatherCursor.getColumnIndex(ForecastsTableInfo.ColumnIcon)))
+            weatherData.put(weatherCursor.getInt(weatherCursor.getColumnIndex(ForecastsTableInfo.ColumnTempMax)))
+            weatherData.put(weatherCursor.getInt(weatherCursor.getColumnIndex(ForecastsTableInfo.ColumnTempMin)))
+            allForecast.add(weatherData)
+        }
+
+        weatherCursor.close()
+        return allForecast
+    }
+
+    fun saveForecast(data:ContentValues, stationID:String){
+        Log.d("testyForecast", data.toString())
+        db.update(ForecastsTableInfo.TableName, data,ForecastsTableInfo.ColumnStationID + "=? AND " + ForecastsTableInfo.ColumnDayNumber + "=?", arrayOf(stationID, data.getAsString(ForecastsTableInfo.ColumnDayNumber)))
     }
 }

@@ -1,4 +1,4 @@
-package pl.simplyinc.pogoda.elements
+package pl.pwr.pogoda.elements
 
 import android.content.Context
 import android.util.AttributeSet
@@ -12,7 +12,7 @@ import android.graphics.RectF
 import android.graphics.Color.GRAY
 import android.graphics.Paint
 import androidx.core.content.ContextCompat
-import pl.simplyinc.pogoda.R
+import pl.pwr.pogoda.R
 import kotlin.math.min
 
 
@@ -31,7 +31,7 @@ class CircularProgressBar(context: Context, attrs: AttributeSet) : View(context,
     fun setType(type:String){
         when(type){
             "day" -> {
-                foregroundPaint!!.color = ContextCompat.getColor(context,R.color.sunrise)
+                foregroundPaint!!.color = ContextCompat.getColor(context, R.color.sunrise)
             }
             "night" -> {
                 this.startAngle = 0.toFloat()

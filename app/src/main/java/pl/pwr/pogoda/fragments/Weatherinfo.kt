@@ -13,23 +13,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_weatherinfo.*
 import org.json.JSONArray
 import org.json.JSONObject
 import pl.pwr.pogoda.R
+import pl.pwr.pogoda.activities.MainActivity
 import pl.pwr.pogoda.activities.SettingsActivity
+import pl.pwr.pogoda.adapters.DayByDayAdapter
+import pl.pwr.pogoda.adapters.ForecastAdapter
 import pl.pwr.pogoda.config.StationTableInfo
 import pl.pwr.pogoda.config.WeatherTableInfo
 import pl.pwr.pogoda.elements.*
-import pl.pwr.pogoda.network.ChartRequest
-import pl.pwr.pogoda.network.NewestWeatherRequest
-import pl.pwr.pogoda.network.SunsetRequest
+import pl.pwr.pogoda.elements.DbQueries
+import pl.pwr.pogoda.network.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,12 +42,13 @@ private const val ARG_PARAM1 = "position"
 
 class Weatherinfo : Fragment() {
 
-    private lateinit var stationData:JSONObject
+    private lateinit var stationData: JSONObject
     private lateinit var weatherData: JSONObject
-    private lateinit var update:NewestWeatherRequest
+    private lateinit var weatherRequest : OpenWeatherRequests
     private var position:Int = -1
     private lateinit var dbQueries: DbQueries
     private var forecastWeatherData = mutableListOf<JSONArray>()
+    private var wantToOpenDayByDay = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,19 +61,18 @@ class Weatherinfo : Fragment() {
         super.onActivityCreated(savedInstanceState)
         day_ProgressBar.setType("day")
         night_ProgressBar.setType("night")
+        daybydayrec.layoutManager = LinearLayoutManager(activity!!.applicationContext)
         dbQueries = DbQueries(activity!!.applicationContext)
         val allStationCount = dbQueries.getStationCount()
 
         if(allStationCount > position){
             stationData = dbQueries.getStationData(position)
             weatherData = dbQueries.getWeatherData(stationData.getString(BaseColumns._ID))
+            weatherRequest = OpenWeatherRequests(activity!!.applicationContext, stationData.getString(BaseColumns._ID))
 
             startWeather()
-            val update = NewestWeatherRequest(activity!!)
-
-            update.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID)){
-                startWeather()
-            }
+            setClickDayByDay()
+            backFromDayByDay()
 
             refresh.setOnClickListener {
                 startWeather()
@@ -101,9 +105,7 @@ class Weatherinfo : Fragment() {
     }
 
     private fun startWeather(){
-        update = NewestWeatherRequest(activity!!)
         val unixTime = System.currentTimeMillis() / 1000L
-        val chart = ChartRequest(activity!!.applicationContext, mChart, swipetutorial)
 
         forecastrecycler.layoutManager = LinearLayoutManager(
             activity!!.applicationContext,
@@ -123,7 +125,7 @@ class Weatherinfo : Fragment() {
             if(stationData.getInt(StationTableInfo.ColumnGPS) == 1){
                 gps.getLocation()
             }else{
-                update.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID)){
+                weatherRequest.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID)){
                     setWeather()
                 }
             }
@@ -139,9 +141,11 @@ class Weatherinfo : Fragment() {
 
         mChart.visibility = View.GONE
         chartProgress.visibility = View.VISIBLE
-        chart.getChartDataOpenWeather(
+        weatherRequest.getChartDataOpenWeather(
             stationData.getString(StationTableInfo.ColumnCity),
-            stationData.getString(StationTableInfo.ColumnTempUnit)
+            stationData.getString(StationTableInfo.ColumnTempUnit),
+            "","",
+            mChart, swipetutorial
         ){
             chartProgress.visibility = View.GONE
 
@@ -155,7 +159,6 @@ class Weatherinfo : Fragment() {
     }
 
     private fun setdayprogress(){
-        val sunset = SunsetRequest()
         val sdf = SimpleDateFormat("dd", Locale.getDefault())
         sdf.timeZone = TimeZone.getTimeZone("GMT")
 
@@ -170,7 +173,7 @@ class Weatherinfo : Fragment() {
         }
 
         if(saveday != currentday || stationData.getInt(StationTableInfo.ColumnSunset) == 0){
-            sunset.getNewestSunset(activity!!.applicationContext, searchval, stationData.getString(BaseColumns._ID)){
+            weatherRequest.getNewestSunset(searchval){
                 setProgressBar()
             }
         }else{
@@ -180,7 +183,7 @@ class Weatherinfo : Fragment() {
 
 
     private fun setBackground():Boolean {
-        if(weatherData.getString(WeatherTableInfo.ColumnWeatherStatus).isNullOrEmpty()){
+        if(!weatherData.has(WeatherTableInfo.ColumnWeatherStatus) || weatherData.getString(WeatherTableInfo.ColumnWeatherStatus).isNullOrEmpty()){
             Handler().postDelayed({
                 setBackground()
             }, 300)
@@ -249,13 +252,14 @@ class Weatherinfo : Fragment() {
     }
 
 
-    fun setWeather(loc:Location? = null){
+    fun setWeather(loc:Location? = null):Boolean{
         if(loc != null){
             val oldLocation = Location("")
             oldLocation.latitude = stationData.getDouble(StationTableInfo.ColumnLatitude)
             oldLocation.longitude = stationData.getDouble(StationTableInfo.ColumnLongitude)
 
             val distance = loc.distanceTo(oldLocation)
+            val unixTime = System.currentTimeMillis() / 1000L
 
             if(distance > 7000){
                 val station = ContentValues()
@@ -263,11 +267,17 @@ class Weatherinfo : Fragment() {
                 station.put(StationTableInfo.ColumnLongitude, loc.longitude.toString())
                 dbQueries.updateStationData(station, stationData.getString(BaseColumns._ID))
 
-                update.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID),  loc.latitude.toString(),  loc.longitude.toString()){
+                weatherRequest.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID),  loc.latitude.toString(),  loc.longitude.toString()){
                     weatherData = dbQueries.getWeatherData(stationData.getString(BaseColumns._ID))
                     startWeather()
                 }
 
+            }else if(weatherData.getInt(WeatherTableInfo.ColumnTime) + 1800 <= unixTime){
+
+                weatherRequest.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID),  loc.latitude.toString(),  loc.longitude.toString()){
+                    weatherData = dbQueries.getWeatherData(stationData.getString(BaseColumns._ID))
+                    startWeather()
+                }
             }
         }
 
@@ -280,7 +290,8 @@ class Weatherinfo : Fragment() {
         if(stationData.getInt(StationTableInfo.ColumnGPS) == 1)
             citymain.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_gps_fixed_white_24dp,0)
 
-
+        if(!weatherData.has(WeatherTableInfo.ColumnTemp))
+            return false
         //temp
         setanimListener(tempout)
         setanimListener(tempoutunit)
@@ -330,6 +341,7 @@ class Weatherinfo : Fragment() {
         setanimListener(null, linearLayout, null)
         setanimListener(null, null, weathericon)
 
+        return true
     }
 
     private fun setanimListener(textView: TextView? = null, layout: LinearLayout? = null, image: ImageView? = null, additionalTemp: HorizontalScrollView? = null, windDir: ImageView? = null, windMark: ImageView? = null, windIcon: ImageView? = null){
@@ -372,4 +384,99 @@ class Weatherinfo : Fragment() {
         }
     }
 
+
+    private fun setClickDayByDay(){
+
+        daybyday.setOnClickListener {
+            charttitle.visibility = View.GONE
+            val now = System.currentTimeMillis()/1000L
+            val forecast = dbQueries.getAllForecast(stationData.getString(BaseColumns._ID))
+
+            if(forecast[0].getInt(0) < (now - 3600)) {
+
+                val city = "q=${stationData.getString(StationTableInfo.ColumnCity)}"
+
+                weatherRequest.getNewestForecast(city){
+                    val newForecast = dbQueries.getAllForecast(stationData.getString(BaseColumns._ID))
+                    forecastrecycler.adapter = ForecastAdapter(activity!!.applicationContext, newForecast, stationData.getString(StationTableInfo.ColumnTempUnit))
+                }
+            }else{
+                forecastrecycler.adapter = ForecastAdapter(activity!!.applicationContext, forecast, stationData.getString(StationTableInfo.ColumnTempUnit))
+            }
+
+            forecastrecycler.visibility = View.VISIBLE
+
+            setDayByDayForecastOpenWeather()
+
+            allmain.visibility = View.GONE
+            weathercontainer.visibility = View.GONE
+            dayfragment.visibility = View.VISIBLE
+            dayfragment.animation = AnimationUtils.loadAnimation(activity!!.applicationContext, R.anim.slidein_from_right_to_left)
+
+        }
+    }
+
+    private fun setDayByDayForecastOpenWeather() {
+        if (forecastWeatherData.size > 10) {
+            val adapt = DayByDayAdapter(context!!, stationData, forecastWeatherData)
+
+            daybydayrec.adapter = adapt
+            daybydayrec.visibility = View.VISIBLE
+        }else wantToOpenDayByDay = true
+    }
+
+    fun hideDayByDay():Boolean{
+        return if(dayfragment != null && dayfragment.visibility == View.VISIBLE) {
+            charttitle.visibility = View.VISIBLE
+            dayfragment.visibility = View.GONE
+            allmain.visibility = View.VISIBLE
+            weathercontainer.visibility = View.VISIBLE
+            allmain.animation = AnimationUtils.loadAnimation(activity!!.applicationContext, R.anim.slidein_from_left_to_right)
+            true
+        }else false
+    }
+
+    private fun backFromDayByDay(){
+        val act = activity as MainActivity
+
+        backToMain.setOnClickListener {
+            act.hideListDayByDay()
+        }
+
+
+        val scrollListener = object : RecyclerView.OnScrollListener() {
+            var lastItemMemory = 0
+            var oneDirection = 0
+            var direction = true
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(daybydayrec, newState)
+                val lastVisible = (daybydayrec.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+
+                if(lastItemMemory < lastVisible){
+                    if(direction){
+                        oneDirection++
+                    }else{
+                        direction = true
+                        oneDirection = 0
+                    }
+                    if(oneDirection >= 2)
+                        topBar.visibility = View.GONE
+
+                }else if(lastItemMemory > lastVisible){
+                    if(!direction){
+                        oneDirection++
+                    }else{
+                        direction = false
+                        oneDirection = 0
+                    }
+
+                    if(oneDirection >= 2 || lastVisible < 2)
+                        topBar.visibility = View.VISIBLE
+                }
+                lastItemMemory = lastVisible
+            }
+        }
+        daybydayrec.addOnScrollListener(scrollListener)
+    }
 }

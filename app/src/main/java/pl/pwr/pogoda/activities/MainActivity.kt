@@ -9,6 +9,7 @@ import pl.pwr.pogoda.R
 import androidx.viewpager.widget.ViewPager
 import pl.pwr.pogoda.adapters.PagerAdapter
 import pl.pwr.pogoda.elements.DbQueries
+import kotlin.system.exitProcess
 
 
 class MainActivity : AppCompatActivity() {
@@ -47,7 +48,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-
+        if(!pagerAdapter.hidedaylist(weathers.currentItem))
+            exitProcess(-1)
     }
 
     private fun setTitleBar(){
@@ -75,4 +77,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun hideListDayByDay(){
+        pagerAdapter.hidedaylist(weathers.currentItem)
+    }
 }

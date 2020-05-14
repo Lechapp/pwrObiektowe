@@ -24,8 +24,7 @@ import kotlinx.android.synthetic.main.activity_search_weather.*
 import pl.pwr.pogoda.R
 import pl.pwr.pogoda.config.StationTableInfo
 import pl.pwr.pogoda.elements.*
-import pl.pwr.pogoda.network.GetCityFromGPS
-import pl.pwr.pogoda.network.SearchCity
+import pl.pwr.pogoda.network.OpenWeatherRequests
 
 
 @Suppress("IMPLICIT_CAST_TO_ANY")
@@ -41,6 +40,7 @@ class SearchWeatherActivity : AppCompatActivity() {
     private var loc:Location? = null
     var countcallback = 0
     var countcallfun = 0
+    private lateinit var searchCity:OpenWeatherRequests
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +49,7 @@ class SearchWeatherActivity : AppCompatActivity() {
         setContentView(R.layout.activity_search_weather)
 
 
-        val searchCity = SearchCity(this,searcherror, progressBarSearch, searchrecycler, tutorial)
+        searchCity = OpenWeatherRequests(this, "0")
 
         searchrecycler.layoutManager = LinearLayoutManager(this)
         progressBarSearch.visibility = View.GONE
@@ -61,7 +61,24 @@ class SearchWeatherActivity : AppCompatActivity() {
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 countcallfun = 0
                 countcallback = 0
-                searchCity.searchFromOpenWeather(city)
+
+                searcherror.text = ""
+
+                if(city.length < 3) {
+                    searcherror.text = getString(R.string.searchempty)
+                }else if(countcallback == countcallfun){
+
+                    progressBarSearch.visibility = View.VISIBLE
+                    searchCity.searchFromOpenWeather(city, searchrecycler){
+                        progressBarSearch.visibility = View.GONE
+
+                        when (it) {
+                            2 -> searcherror.text = getString(R.string.error)
+                            1 -> searcherror.text = getString(R.string.wrongcity)
+                            0 -> showtutorial()
+                        }
+                    }
+                }
 
                 val inputManager:InputMethodManager =getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, InputMethodManager.SHOW_FORCED)
@@ -78,7 +95,15 @@ class SearchWeatherActivity : AppCompatActivity() {
                     countcallback++
                     Handler().postDelayed({
                         countcallfun++
-                        searchCity.searchFromOpenWeather(city)
+                        searchCity.searchFromOpenWeather(city, searchrecycler){
+                            progressBarSearch.visibility = View.GONE
+
+                            when (it) {
+                                2 -> searcherror.text = getString(R.string.error)
+                                1 -> searcherror.text = getString(R.string.wrongcity)
+                                0 -> showtutorial()
+                            }
+                        }
 
                     }, 1300)
                 }
@@ -131,7 +156,7 @@ class SearchWeatherActivity : AppCompatActivity() {
 
     fun setLocation(l:Location){
         loc = l
-        GetCityFromGPS().getCity(this,l)
+        searchCity.getCityFromGps(this,l)
     }
 
     fun setCity(newCity:String, country:String, timezone:Int, id:String=""){
@@ -194,6 +219,15 @@ class SearchWeatherActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
 
+    }
+
+    private fun showtutorial(){
+        if(SessionPref(this).getPref("mapstutorial") != "true" && tutorial.visibility == View.GONE) {
+            val anim = AnimationUtils.loadAnimation(this, R.anim.slidein_frombottom)
+            anim.duration = 1000
+            tutorial.visibility = View.VISIBLE
+            tutorial.startAnimation(anim)
+        }
     }
 
 }

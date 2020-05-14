@@ -7,7 +7,7 @@ import android.provider.BaseColumns
 
     private object DataBaseInfo{
         const val name = "Weather"
-        const val version = 10
+        const val version = 11
     }
 
     object WeatherTableInfo: BaseColumns{

@@ -26,4 +26,7 @@ class PagerAdapter(fm: FragmentManager, val context:Context, private val station
         return stationsCount+1
     }
 
+    fun hidedaylist(whichone:Int):Boolean{
+        return (frags[whichone] != null && frags[whichone]!!.hideDayByDay())
+    }
 }

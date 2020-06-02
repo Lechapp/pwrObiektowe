@@ -125,7 +125,7 @@ class Weatherinfo : Fragment() {
             if(stationData.getInt(StationTableInfo.ColumnGPS) == 1){
                 gps.getLocation()
             }else{
-                weatherRequest.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID)){
+                weatherRequest.getNewestWeatherOpenWeather(){
                     setWeather()
                 }
             }
@@ -267,14 +267,14 @@ class Weatherinfo : Fragment() {
                 station.put(StationTableInfo.ColumnLongitude, loc.longitude.toString())
                 dbQueries.updateStationData(station, stationData.getString(BaseColumns._ID))
 
-                weatherRequest.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID),  loc.latitude.toString(),  loc.longitude.toString()){
+                weatherRequest.getNewestWeatherOpenWeather(loc.latitude.toString(),  loc.longitude.toString()){
                     weatherData = dbQueries.getWeatherData(stationData.getString(BaseColumns._ID))
                     startWeather()
                 }
 
             }else if(weatherData.getInt(WeatherTableInfo.ColumnTime) + 1800 <= unixTime){
 
-                weatherRequest.getNewestWeatherOpenWeather(stationData.getString(BaseColumns._ID),  loc.latitude.toString(),  loc.longitude.toString()){
+                weatherRequest.getNewestWeatherOpenWeather(loc.latitude.toString(),  loc.longitude.toString()){
                     weatherData = dbQueries.getWeatherData(stationData.getString(BaseColumns._ID))
                     startWeather()
                 }

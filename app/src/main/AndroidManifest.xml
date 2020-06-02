@@ -29,12 +29,10 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                        android:host="www.simplyclime.pl"
-                        android:pathPrefix="/"
-                        android:scheme="https"/>
-                <data
-                        android:host="simplyclime"
-                        android:scheme="https"/>
+                    android:host="www.example.pl"
+                    android:pathPrefix="/"
+                    android:scheme="https"/>
+
             </intent-filter>
         </activity>
         <activity android:name="pl.pwr.pogoda.activities.MainActivity">

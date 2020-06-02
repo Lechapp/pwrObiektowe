@@ -11,9 +11,10 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat.startActivity
 import pl.pwr.pogoda.activities.SearchWeatherActivity
 import pl.pwr.pogoda.fragments.Weatherinfo
+import pl.pwr.pogoda.widget.NewestWeather
 
 
-class GpsLocation(private val c:Context, private val searchActivity: SearchWeatherActivity? = null, private val widget:String? = null, private val weatherInfo:Weatherinfo? = null) {
+class GpsLocation(private val c:Context, private val searchActivity: SearchWeatherActivity? = null, private val widget: NewestWeather.Companion? = null, private val weatherInfo:Weatherinfo? = null) {
 
     private lateinit var locationManager : LocationManager
     private var gpslocation:Location? = null
@@ -39,8 +40,7 @@ class GpsLocation(private val c:Context, private val searchActivity: SearchWeath
 
    inner class NetLocationListener(private  var netlocation:Location?,private val gpslocation: Location?) :LocationListener{
         override fun onLocationChanged(location: Location?) {
-            if (location != null)
-            {
+            if (location != null) {
                 netlocation = location
                 updatelocation(gpslocation, netlocation)
             }
@@ -118,6 +118,10 @@ class GpsLocation(private val c:Context, private val searchActivity: SearchWeath
 
             if(weatherInfo !== null){
                 weatherInfo.setWeather(loc)
+            }
+
+            if(widget !== null){
+                widget.setWidgetFromGps(loc)
             }
 
         }

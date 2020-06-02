@@ -6,10 +6,7 @@ import android.provider.BaseColumns
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
-import pl.pwr.pogoda.config.DataBaseHelper
-import pl.pwr.pogoda.config.ForecastsTableInfo
-import pl.pwr.pogoda.config.StationTableInfo
-import pl.pwr.pogoda.config.WeatherTableInfo
+import pl.pwr.pogoda.config.*
 
 class DbQueries(context: Context) {
     private val dbHelper = DataBaseHelper(context)
@@ -133,6 +130,7 @@ class DbQueries(context: Context) {
             weatherData.put(weatherCursor.getInt(weatherCursor.getColumnIndex(ForecastsTableInfo.ColumnIcon)))
             weatherData.put(weatherCursor.getInt(weatherCursor.getColumnIndex(ForecastsTableInfo.ColumnTempMax)))
             weatherData.put(weatherCursor.getInt(weatherCursor.getColumnIndex(ForecastsTableInfo.ColumnTempMin)))
+            weatherData.put(weatherCursor.getInt(weatherCursor.getColumnIndex(ForecastsTableInfo.ColumnIconBlack)))
             allForecast.add(weatherData)
         }
 
@@ -144,4 +142,44 @@ class DbQueries(context: Context) {
         Log.d("testyForecast", data.toString())
         db.update(ForecastsTableInfo.TableName, data,ForecastsTableInfo.ColumnStationID + "=? AND " + ForecastsTableInfo.ColumnDayNumber + "=?", arrayOf(stationID, data.getAsString(ForecastsTableInfo.ColumnDayNumber)))
     }
+
+
+    fun getStationIDs(): ArrayList<String> {
+        val stationIDs = arrayListOf<String>()
+
+        val cursor = db.query(StationTableInfo.TableName, arrayOf(BaseColumns._ID), null, null, null,null, null)
+        cursor.moveToFirst()
+        if(cursor.count > 0) {
+            stationIDs.add(cursor.getString(0))
+
+            while (cursor.moveToNext()) {
+                stationIDs.add(cursor.getString(0))
+            }
+        }
+        cursor.close()
+        return stationIDs
+    }
+
+    fun addNewWidget(widgetData:ContentValues){
+        db.insertOrThrow(WidgetTableInfo.TableName, null, widgetData)
+    }
+
+    fun getWidgetData(widgetID:String) :JSONObject{
+        val widgetData = JSONObject()
+        val weatherCursor = db.query(WidgetTableInfo.TableName, null, WidgetTableInfo.ColumnWidgetID + "=?", arrayOf(widgetID), null,null, null)
+        weatherCursor.moveToFirst()
+        widgetData.put(WidgetTableInfo.ColumnTemp, weatherCursor.getString(weatherCursor.getColumnIndex(WidgetTableInfo.ColumnTemp)))
+        widgetData.put(WidgetTableInfo.ColumnHumidity, weatherCursor.getString(weatherCursor.getColumnIndex(WidgetTableInfo.ColumnHumidity)))
+        widgetData.put(WidgetTableInfo.ColumnPressure, weatherCursor.getString(weatherCursor.getColumnIndex(WidgetTableInfo.ColumnPressure)))
+        widgetData.put(WidgetTableInfo.ColumnRainfall, weatherCursor.getString(weatherCursor.getColumnIndex(WidgetTableInfo.ColumnRainfall)))
+        widgetData.put(WidgetTableInfo.ColumnWindSpeed, weatherCursor.getString(weatherCursor.getColumnIndex(WidgetTableInfo.ColumnWindSpeed)))
+
+        weatherCursor.close()
+        return widgetData
+    }
+
+    fun deleteWidget(id:String){
+        db.delete(WidgetTableInfo.TableName, WidgetTableInfo.ColumnWidgetID+"=?", arrayOf(id))
+    }
+
 }

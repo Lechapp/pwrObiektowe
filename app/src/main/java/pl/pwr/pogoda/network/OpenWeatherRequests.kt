@@ -45,12 +45,12 @@ class OpenWeatherRequests(private val c: Context, private val stationID:String) 
     private val tool = WeatherTools()
     private val dbQueries = DbQueries(c)
 
-    fun getNewestWeatherOpenWeather(idStation:String, lat:String = "", lon:String = "", appWidgetId: Int = -1, onSuccess: (finishRequest: Boolean) -> Unit) {
+    fun getNewestWeatherOpenWeather(lat:String = "", lon:String = "", onSuccess: (finishRequest: Boolean) -> Unit) {
 
         val searchvalue = if(lat != "") {
             "lat=$lat&lon=$lon"
         }else {
-            "q=${dbQueries.getStationValue(idStation, StationTableInfo.ColumnCity)}"
+            "q=${dbQueries.getStationValue(stationID, StationTableInfo.ColumnCity)}"
         }
         val url = "https://api.openweathermap.org/data/2.5/weather?$searchvalue&appid=${OpenWeather.APIKey}"
 
@@ -100,7 +100,8 @@ class OpenWeatherRequests(private val c: Context, private val stationID:String) 
                 newWeather.put(WeatherTableInfo.ColumnWindSpeed, wind.getString("speed"))
                 newWeather.put(WeatherTableInfo.ColumnWindDir, windToSave)
 
-                dbQueries.updateWeatherData(newWeather, idStation)
+                dbQueries.updateWeatherData(newWeather, stationID)
+
 
                 val sys = response.getJSONObject("sys")
 
@@ -108,31 +109,17 @@ class OpenWeatherRequests(private val c: Context, private val stationID:String) 
                     response.getString("name"),
                     sys.getInt("sunset"),
                     sys.getInt("sunrise"),
-                    idStation,
+                    stationID,
                     response.getInt("timezone"),
                     lat, lon
                 )
 
-                if(appWidgetId == -1)
-                // setWeather
-                else{
-                    //setWidget
-                }
             }else{
-                if(appWidgetId == -1)
-                //setWeather
-                else{
-                    //setWidget
-                }
+
             }
             onSuccess(true)
         },
             Response.ErrorListener {
-                if(appWidgetId == -1){
-                    //setWeather
-                }else{
-                    //setWidget
-                }
                 Toast.makeText(c, c.getString(R.string.checkconnection), Toast.LENGTH_SHORT).show()
             })
 
